@@ -32,6 +32,8 @@ class SqliteQuery:
         return self
 
     def insert(self, fieldsTpl, valuesTpl):
+        if self.validateTable() is not True:
+            return
         try:
             self.cur = self.con.cursor()
             self.cur.execute("INSERT INTO " + self.tableName +
@@ -44,6 +46,8 @@ class SqliteQuery:
             self.cur.close()
 
     def delete(self, where):
+        if self.validateTable() is not True:
+            return
         try:
             self.cur = self.con.cursor()
             if where:
@@ -62,6 +66,8 @@ class SqliteQuery:
         pass  # TODO,...
 
     def query(self, fieldsTpl, where):
+        if self.validateTable() is not True:
+            return
         try:
             self.cur = self.con.cursor()
             if where:
@@ -69,15 +75,23 @@ class SqliteQuery:
                             " FROM " + self.tableName + "WHERE " + where)
             else:
                 self.cur.execute("SELECT " + fieldsTpl +
-                            " FROM " + self.tableName)
-            self.rows = self.cur.fetchall()
+                            " FROM " + self.tableName + " LIMIT 10")
+            rows = self.cur.fetchall()
         except Exception as inst:
             print "Warning, query record error:"
             print inst
         finally:
             self.cur.close()
 
-        return self.rows  # list
+        return rows  # list
+
+    def validateTable(self):
+        try:
+            self.tableName
+        except Exception:
+            print "tableName is not assigned, stop query..."
+            return False
+        return True
 
     def clean(self):
         self.__del__()
@@ -85,7 +99,7 @@ class SqliteQuery:
 # end of SqliteQuery definition
 
 
-def main():
+def test():
     # sample database create...
     query = SqliteQuery(":memory:")
     query.create("sampletable", "name TEXT, age INTEGER")
@@ -112,6 +126,6 @@ def main():
 #=====
 
 if __name__ == "__main__":
-    main()
+    test()
 
 # The end...
