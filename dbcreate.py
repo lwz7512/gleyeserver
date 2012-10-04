@@ -19,7 +19,7 @@
 import sqlite3
 
 
-dbname = "gleye.db"
+dbname = "../sqlite/gleye.db"
 tbname = "genpfm"
 
 

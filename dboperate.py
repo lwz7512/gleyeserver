@@ -32,7 +32,7 @@ class SqliteQuery:
         return self
 
     def insert(self, fieldsTpl, valuesTpl):
-        if self.validateTable() is not True:
+        if self.validateTable() is False:
             return
         try:
             self.cur = self.con.cursor()
@@ -46,7 +46,7 @@ class SqliteQuery:
             self.cur.close()
 
     def delete(self, where):
-        if self.validateTable() is not True:
+        if self.validateTable() is False:
             return
         try:
             self.cur = self.con.cursor()
@@ -66,7 +66,7 @@ class SqliteQuery:
         pass  # TODO,...
 
     def query(self, fieldsTpl, where):
-        if self.validateTable() is not True:
+        if self.validateTable() is False:
             return
         try:
             self.cur = self.con.cursor()

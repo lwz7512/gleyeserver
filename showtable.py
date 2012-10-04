@@ -8,7 +8,7 @@ import sqlite3
 from dboperate import SqliteQuery
 
 
-dbname = "gleye.db"
+dbname = "../sqlite/gleye.db"
 tbname = "genpfm"
 colswidth = [13, 11, 13, 14, 19]
 
