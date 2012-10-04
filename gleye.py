@@ -16,7 +16,7 @@ import os.path
 tutconf = os.path.join(os.path.dirname(__file__), 'server.conf')
 
 
-class HelloWorld:
+class CollectData:
 
     def index(self):
         start()
@@ -42,7 +42,7 @@ def status():
 
 
 def main():
-    cherrypy.quickstart(HelloWorld(), config=tutconf)
+    cherrypy.quickstart(CollectData(), config=tutconf)
 
 
 # Main
