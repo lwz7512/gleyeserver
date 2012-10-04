@@ -11,10 +11,9 @@
 import threading
 import time
 
+#global var definition
 psutil_available = None
-cpu_num = None
 timer = None
-running = False
 
 try:
     import psutil
@@ -31,30 +30,22 @@ except ImportError:
 else:
     print 'pstuil is ready...'
     psutil_available = True
+
     cpu_num = psutil.NUM_CPUS
     print 'cpu num: ', cpu_num
+#......................... end of test ...................
+
+#--------------- start of private collect functhion -------------
 
 
-def isRunning():
-    if timer is not None:
-        return timer.isPlay
-    return False
-
-
-def collect():
+def __collect():
     if psutil_available is False:
+        print "psutil is inavailable, could not collect data..."
         return
-    poll_per_cpu()
+    __poll_per_cpu()
 
 
-def poll_total_cpu():
-    # non-blocking (percentage since last call)
-    cpu_usage = psutil.cpu_percent(interval=0)
-
-    return cpu_usage
-
-
-def poll_per_cpu():
+def __poll_per_cpu():
     # non-blocking (percentage since last call)
     per_cpu_usage = psutil.cpu_percent(0, True)
     cpu_usage_all = []
@@ -66,10 +57,19 @@ def poll_per_cpu():
     #TODO, save to database...
 
 
-def poll_process_info():
+def __poll_total_cpu():
+    # non-blocking (percentage since last call)
+    cpu_usage = psutil.cpu_percent(interval=0)
+
+    return cpu_usage
+
+
+def __poll_process_info():
     pass    # TODO, ...
 
 #..............this is end of collect method..............................
+
+#--------------- start of Timer class -------------------------
 
 
 class Timer(threading.Thread):
@@ -105,19 +105,33 @@ class Timer(threading.Thread):
         #if lastDo,do it again
         if self.lastDo:
             self.__do()
+        #print "timer stoped!"
+#............... end of timer class ................................
+
+#--------------- start of public functhion -------------------------
+
+
+def isRunning():
+    global timer
+    if timer is not None:
+        return timer.isPlay
+    return False
 
 
 def stop():
-    if timer is not None:
+    global timer
+    if timer:
         timer.stop()
 
 
 def go():
-    timer = Timer(collect, (), 3, False)
+    global timer
+    timer = Timer(__collect, (), 3, False)
     timer.start()
-    print 'collect task start to run...'
-    timer.join()  # stop main finished..
+    #print 'collect task start to run...'
+    #timer.join()  # stop main process finished..
 
+#.................... end of module .................
 
 if __name__ == "__main__":
     go()

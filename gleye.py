@@ -8,12 +8,29 @@ check the server/database/business running status, first use ubuntu to test!
 """
 # Libraries
 #==========
-
+import cherrypy
 import collecttask
+import os.path
 
 
-def main():
-    collecttask.main()
+tutconf = os.path.join(os.path.dirname(__file__), 'server.conf')
+
+
+class HelloWorld:
+
+    def index(self):
+        start()
+        return "<a href='stopCollect'>Click to stop</a>"
+    index.exposed = True
+
+    def stopCollect(self):
+        stop()
+        return "Stoped!  <a href='../'>click to start</a>"
+    stopCollect.exposed = True
+
+
+def start():
+    collecttask.go()
 
 
 def stop():
@@ -22,6 +39,11 @@ def stop():
 
 def status():
     return collecttask.isRunning()
+
+
+def main():
+    cherrypy.quickstart(HelloWorld(), config=tutconf)
+
 
 # Main
 #=====
