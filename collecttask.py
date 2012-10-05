@@ -10,10 +10,14 @@
 """
 import threading
 import time
+import dboperate
 
 #global var definition
 psutil_available = None
 timer = None
+
+dbname = "../sqlite/gleye.db"
+tbname = "genpfm"
 
 try:
     import psutil
@@ -53,8 +57,13 @@ def __poll_per_cpu():
         cpu_usage_all.append(str(i) + ',')
     cpu_striped = ''.join(cpu_usage_all)
     cpu_striped = cpu_striped[:len(cpu_striped) - 1]
-    print 'cpu usage: ', cpu_striped
-    #TODO, save to database...
+    #print 'cpu usage: ', cpu_striped
+    #save to database...
+    query = dboperate.SqliteQuery(dbname)
+    query = query.table(tbname)
+    #create_milisec = str(math.trunc(time.time() * 1000))
+    query.insert(('kpi', 'value', 'target', 'create_time'),
+                 ('cpu_usage', cpu_striped, 'local', time.time()))
 
 
 def __poll_total_cpu():

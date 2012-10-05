@@ -4,6 +4,8 @@
 
     2012/09/26
 """
+import datetime
+import time
 import sqlite3
 from dboperate import SqliteQuery
 
@@ -11,6 +13,29 @@ from dboperate import SqliteQuery
 dbname = "../sqlite/gleye.db"
 tbname = "genpfm"
 colswidth = [13, 11, 13, 14, 19]
+
+
+def getLatestRecord():
+    query = SqliteQuery(dbname)
+    query = query.table(tbname)
+    endtime = time.time()
+    starttime = endtime - 3
+#where = "create_time >" + str(starttime) + " AND create_time <" + str(endtime)
+    where = "create_time >:starttime AND create_time <:endtime"
+    params = {"starttime": starttime, "endtime": endtime}
+    rows = query.query("*", where, params, None)
+    print "latest record: "
+    if rows:
+        for row in rows:
+            print row
+    else:
+        print "no results..."
+    return rows[0]
+
+
+def timeToSimpleFormatDate(sec):
+    dt = datetime.datetime.fromtimestamp(sec)
+    return dt.strftime('%Y-%m-%d %H:%M:%S')
 
 
 def showTableSchema():
@@ -26,7 +51,7 @@ def showTableSchema():
 def printTableData():
     query = SqliteQuery(dbname)
     query = query.table(tbname)
-    rows = query.query("*", None)
+    rows = query.query("*", None, None, "create_time")
     if rows is None:
         print "results is none, stop to display..."
         return
@@ -40,6 +65,7 @@ def printTableData():
 def main():
     showTableSchema()
     printTableData()
+    getLatestRecord()
 
 
 if __name__ == "__main__":

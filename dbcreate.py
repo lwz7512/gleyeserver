@@ -11,7 +11,7 @@
         kpi,TEXT
         value,TEXT
         target,TEXT
-        create_time,INTEGER (long miliseconds)
+        create_time,REAL (long miliseconds)
 
     2012/09/26
 
@@ -30,7 +30,7 @@ def createPerformanceTable():
     cur.execute("DROP TABLE IF EXISTS " + tbname)
     cur.execute("CREATE TABLE " + tbname +
                 "(id INTEGER PRIMARY KEY, " +
-                "kpi TEXT, value TEXT, target TEXT, create_time INTEGER)")
+                "kpi TEXT, value TEXT, target TEXT, create_time REAL)")
     print "table: ", tbname, "constructed!"
     #conn.commit()
     cur.close()
@@ -42,7 +42,10 @@ def testInsertData():
     cur = conn.cursor()
     cur.execute("INSERT INTO " + tbname +
             "(kpi,value,target,create_time) " +
-            "VALUES('cpu_usage','0.1','samplehost','12345')")
+            "VALUES('cpu_usage','0.1','samplehost','123')")
+    cur.execute("INSERT INTO " + tbname +
+            "(kpi,value,target,create_time) " +
+            "VALUES('cpu_usage','0.2','samplehost','12345')")
     #conn.commit()  # a must do, or cannot see results
     cur.close()
     print "inserted one sample record:"
@@ -52,13 +55,14 @@ def testDatabseAvail():
     conn = sqlite3.connect(dbname)
     cur = conn.cursor()
     cur.execute("SELECT * FROM " + tbname)
-    print cur.fetchone()
+    for row in cur.fetchall():
+        print row
     cur.close()
 
 
 def main():
     createPerformanceTable()
-    testInsertData()
+    #testInsertData()
     testDatabseAvail()
     #todo, add other table...
 

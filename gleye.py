@@ -8,9 +8,13 @@ check the server/database/business running status, first use ubuntu to test!
 """
 # Libraries
 #==========
-import cherrypy
-import collecttask
+import json
 import os.path
+
+import cherrypy
+
+import showtable
+import collecttask
 
 
 tutconf = os.path.join(os.path.dirname(__file__), 'server.conf')
@@ -27,6 +31,16 @@ class CollectData:
         stop()
         return "Stoped!  <a href='../'>click to start</a>"
     stopCollect.exposed = True
+
+    def latest(self):
+        row = showtable.getLatestRecord()
+        if row:
+            obj = {'id': row[0], 'kpi': row[1], 'value': row[2],
+                    'target': row[3], 'createtime': row[4]}
+            return json.dumps(obj)
+        else:
+            return ""
+    latest.exposed = True
 
 
 def start():

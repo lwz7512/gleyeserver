@@ -15,11 +15,7 @@ class SqliteQuery:
         self.cur = self.con.cursor()
 
     def __del__(self):
-        try:
-            self.cur.close()
-        except Exception as inst:
-            print "clean cursor error:"
-            print inst
+        pass
 
     def create(self, tableName, fields):
         self.tableName = tableName
@@ -65,18 +61,29 @@ class SqliteQuery:
     def update(self, fieldsTpl, valuesTpl):
         pass  # TODO,...
 
-    def query(self, fieldsTpl, where):
+    def query(self, fieldsTpl, where, params, orderby):
         if self.validateTable() is False:
             return
         try:
             self.cur = self.con.cursor()
-            if where:
+            if where and params and orderby:
                 self.cur.execute("SELECT " + fieldsTpl +
-                            " FROM " + self.tableName + "WHERE " + where)
-            else:
+                        " FROM " + self.tableName + " WHERE " + where +
+                        " ORDER BY " + orderby + " DESC"
+                        " LIMIT 10", params)
+            elif where and params:
+                sql_start = "SELECT " + fieldsTpl + " FROM " + self.tableName
+                sql_where = " WHERE " + where
+                sql = sql_start + sql_where
+                #print sql
+                self.cur.execute(sql, params)
+            elif orderby:
                 self.cur.execute("SELECT " + fieldsTpl +
-                            " FROM " + self.tableName + " LIMIT 10")
+                            " FROM " + self.tableName +
+                            " ORDER BY " + orderby + " DESC" +
+                            " LIMIT 10")
             rows = self.cur.fetchall()
+
         except Exception as inst:
             print "Warning, query record error:"
             print inst
@@ -111,7 +118,7 @@ def test():
     print "insert one row success..."
 
     # test data query in memory...
-    rows = query.query("name, age", None)
+    rows = query.query("name, age", None, None, None)
     for row in rows:
         print row
 
