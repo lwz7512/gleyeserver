@@ -16,8 +16,10 @@ import cherrypy
 import showtable
 import collecttask
 
-
-tutconf = os.path.join(os.path.dirname(__file__), 'server.conf')
+localDir = os.path.dirname(__file__)
+tutconf = os.path.join(localDir, 'server.conf')
+access_log = os.path.join(localDir, "access.log")
+error_log = os.path.join(localDir, "error.log")
 
 
 class CollectData:

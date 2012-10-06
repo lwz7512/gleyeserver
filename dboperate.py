@@ -15,7 +15,11 @@ class SqliteQuery:
         self.cur = self.con.cursor()
 
     def __del__(self):
-        pass
+        try:
+            self.con.close()
+        except Exception as inst:
+            print "waring, clean connection error:"
+            print inst
 
     def create(self, tableName, fields):
         self.tableName = tableName

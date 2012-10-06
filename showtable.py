@@ -24,13 +24,11 @@ def getLatestRecord():
     where = "create_time >:starttime AND create_time <:endtime"
     params = {"starttime": starttime, "endtime": endtime}
     rows = query.query("*", where, params, None)
-    print "latest record: "
+    #print "latest record: "
     if rows:
-        for row in rows:
-            print row
+        return rows[0]
     else:
-        print "no results..."
-    return rows[0]
+        return None
 
 
 def timeToSimpleFormatDate(sec):

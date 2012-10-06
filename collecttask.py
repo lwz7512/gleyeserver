@@ -35,8 +35,8 @@ else:
     print 'pstuil is ready...'
     psutil_available = True
 
-    cpu_num = psutil.NUM_CPUS
-    print 'cpu num: ', cpu_num
+    #cpu_num = psutil.NUM_CPUS
+    #print 'cpu num: ', cpu_num
 #......................... end of test ...................
 
 #--------------- start of private collect functhion -------------
@@ -64,6 +64,7 @@ def __poll_per_cpu():
     #create_milisec = str(math.trunc(time.time() * 1000))
     query.insert(('kpi', 'value', 'target', 'create_time'),
                  ('cpu_usage', cpu_striped, 'local', time.time()))
+    query.clean()
 
 
 def __poll_total_cpu():
