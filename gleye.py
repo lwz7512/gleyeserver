@@ -18,8 +18,6 @@ import collecttask
 
 localDir = os.path.dirname(__file__)
 tutconf = os.path.join(localDir, 'server.conf')
-access_log = os.path.join(localDir, "access.log")
-error_log = os.path.join(localDir, "error.log")
 
 
 class CollectData:
@@ -44,6 +42,17 @@ class CollectData:
             return ""
     latest.exposed = True
 
+    def config(self):
+        cpu = str(collecttask.cpuNum())
+        return str(cpu)
+    config.exposed = True
+
+    #end of CollectData class
+
+
+def hostCfg():
+    return collecttask.cpuNum()
+
 
 def start():
     collecttask.go()
@@ -59,7 +68,6 @@ def status():
 
 def main():
     cherrypy.quickstart(CollectData(), config=tutconf)
-
 
 # Main
 #=====

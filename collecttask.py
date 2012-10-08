@@ -121,6 +121,13 @@ class Timer(threading.Thread):
 #--------------- start of public functhion -------------------------
 
 
+def cpuNum():
+    if psutil_available is False:
+        print "psutil is inavailable, could not collect data..."
+        return 0
+    return psutil.NUM_CPUS
+
+
 def isRunning():
     global timer
     if timer is not None:
