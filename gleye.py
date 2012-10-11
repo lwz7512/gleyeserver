@@ -24,12 +24,12 @@ class CollectData:
 
     def index(self):
         start()
-        return "Collect Task Started, <a href='stopCollect'>Click to stop</a>"
+        return "Collect Task Started, <a href='stopCollect'>Click to Stop</a>"
     index.exposed = True
 
     def stopCollect(self):
         stop()
-        return "Stoped!  <a href='../'>click to start</a>"
+        return "Stoped!  <a href='../'>Click to Start</a>"
     stopCollect.exposed = True
 
     def latest(self):
@@ -55,7 +55,7 @@ def hostCfg():
 
 
 def start():
-    if collecttask.isRunning():
+    if status():
         print "Task is already running..."
         return
     collecttask.go()
@@ -72,7 +72,7 @@ def status():
 
 
 def main():
-    cherrypy.quickstart(CollectData(), config=tutconf)
+    cherrypy.quickstart(CollectData(), "", tutconf)
 
 # Main
 #=====

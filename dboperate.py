@@ -65,7 +65,7 @@ class SqliteQuery:
     def update(self, fieldsTpl, valuesTpl):
         pass  # TODO,...
 
-    def query(self, fieldsTpl, where, params, orderby):
+    def query(self, fieldsTpl, where, params, orderby=None, limit=10):
         if self.validateTable() is False:
             return
         try:
@@ -74,10 +74,10 @@ class SqliteQuery:
                 self.cur.execute("SELECT " + fieldsTpl +
                         " FROM " + self.tableName + " WHERE " + where +
                         " ORDER BY " + orderby + " DESC"
-                        " LIMIT 10", params)
+                        " LIMIT " + str(limit), params)
             elif where and params:
                 sql_start = "SELECT " + fieldsTpl + " FROM " + self.tableName
-                sql_where = " WHERE " + where
+                sql_where = " WHERE " + where + " LIMIT " + str(limit)
                 sql = sql_start + sql_where
                 #print sql
                 self.cur.execute(sql, params)
@@ -85,7 +85,7 @@ class SqliteQuery:
                 self.cur.execute("SELECT " + fieldsTpl +
                             " FROM " + self.tableName +
                             " ORDER BY " + orderby + " DESC" +
-                            " LIMIT 10")
+                            " LIMIT " + str(limit))
             rows = self.cur.fetchall()
 
         except Exception as inst:

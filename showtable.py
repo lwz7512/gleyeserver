@@ -15,6 +15,7 @@ tbname = "genpfm"
 colswidth = [13, 11, 13, 14, 19]
 
 
+# used by collecttask...
 def getLatestRecord():
     query = SqliteQuery(dbname)
     query = query.table(tbname)
@@ -27,7 +28,7 @@ def getLatestRecord():
 #where = "create_time >" + str(starttime) + " AND create_time <" + str(endtime)
     where = "create_time >:starttime AND create_time <:endtime"
     params = {"starttime": starttime, "endtime": endtime}
-    rows = query.query("*", where, params, None)
+    rows = query.query("*", where, params)
     #print "latest record: "
     if rows:
         return rows[0]
@@ -40,6 +41,7 @@ def timeToSimpleFormatDate(sec):
     return dt.strftime('%Y-%m-%d %H:%M:%S')
 
 
+# ------------------test method to show saved data-----------------
 def showTableSchema():
     con = sqlite3.connect(dbname)
     cur = con.execute("PRAGMA table_info(" + tbname + ")")
@@ -47,13 +49,13 @@ def showTableSchema():
     for col in rows:
         print col[1] + "(" + col[2] + ")  ",  # connect with next line...
     print ""
-    print "................................................" * 2
+    print "-------------------------------------------" * 2
 
 
 def printTableData():
     query = SqliteQuery(dbname)
     query = query.table(tbname)
-    rows = query.query("*", None, None, "create_time")
+    rows = query.query("*", None, None, "create_time", 10)
     if rows is None:
         print "results is none, stop to display..."
         return
