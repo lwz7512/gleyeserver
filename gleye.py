@@ -24,7 +24,7 @@ class CollectData:
 
     def index(self):
         start()
-        return "<a href='stopCollect'>Click to stop</a>"
+        return "Collect Task Started, <a href='stopCollect'>Click to stop</a>"
     index.exposed = True
 
     def stopCollect(self):
@@ -55,11 +55,16 @@ def hostCfg():
 
 
 def start():
+    if collecttask.isRunning():
+        print "Task is already running..."
+        return
     collecttask.go()
+    print "Collect started..."
 
 
 def stop():
     collecttask.stop()
+    print "Collect stoped"
 
 
 def status():

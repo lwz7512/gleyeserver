@@ -32,7 +32,7 @@ except ImportError:
     print ''
     psutil_available = False
 else:
-    print 'pstuil is ready...'
+    print 'pstuil is ready to run...'
     psutil_available = True
 
     #cpu_num = psutil.NUM_CPUS

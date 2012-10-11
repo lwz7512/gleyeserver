@@ -19,7 +19,11 @@ def getLatestRecord():
     query = SqliteQuery(dbname)
     query = query.table(tbname)
     endtime = time.time()
-    starttime = endtime - 3
+    # every 3 second to collect cpu, and consume ~0.18 to run task,
+    # so have a little lag, to query the right data, consider the factor
+    # 2012/10/11
+    starttime = endtime - 3.2
+
 #where = "create_time >" + str(starttime) + " AND create_time <" + str(endtime)
     where = "create_time >:starttime AND create_time <:endtime"
     params = {"starttime": starttime, "endtime": endtime}
