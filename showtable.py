@@ -24,7 +24,6 @@ def getLatestRecord():
     # so have a little lag, to query the right data, consider the factor
     # 2012/10/11
     starttime = endtime - 3.2
-
 #where = "create_time >" + str(starttime) + " AND create_time <" + str(endtime)
     where = "create_time >:starttime AND create_time <:endtime"
     params = {"starttime": starttime, "endtime": endtime}
@@ -69,7 +68,6 @@ def printTableData():
 def main():
     showTableSchema()
     printTableData()
-    getLatestRecord()
 
 
 if __name__ == "__main__":

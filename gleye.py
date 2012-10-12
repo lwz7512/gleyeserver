@@ -8,8 +8,10 @@ check the server/database/business running status, first use ubuntu to test!
 """
 # Libraries
 #==========
+import ConfigParser
 import json
 import os.path
+import socket
 
 import cherrypy
 
@@ -72,7 +74,29 @@ def status():
 
 
 def main():
+    cf = ConfigParser.ConfigParser()
+    cf.read(tutconf)
+    ip = cf.get("global", "server.socket_host")
+    port = cf.getint("global", "server.socket_port")
+    ip = ip[1:len(ip) - 1]
+    print "server starting at: ", ip + ":" + str(port)
+    available = checkPort(ip, port)
+    if available is False:
+        return
     cherrypy.quickstart(CollectData(), "", tutconf)
+
+    print "server exited!"
+
+
+def checkPort(ip, port):
+    skt = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    try:
+        skt.bind((ip, port))
+        print str(port) + " is available!"
+        return True
+    except Exception:
+        print str(port) + " has already used!"
+        return False
 
 # Main
 #=====

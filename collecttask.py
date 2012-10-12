@@ -102,8 +102,8 @@ class Timer(threading.Thread):
 
     def run(self):
         while self.isPlay:
-            time.sleep(self.sleep)
             self.__do()
+            time.sleep(self.sleep)
 
     def stop(self):
         #stop the loop
