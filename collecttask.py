@@ -24,12 +24,12 @@ tbname = "genpfm"
 try:
     import psutil
 except ImportError:
-    print 'PsUtil module not found. Glances cannot start.'
+    print 'PsUtil module not found. Gleye cannot start.'
     print ''
     print 'On Ubuntu 12.04 or higher:'
     print '$ sudo apt-get install python-psutil'
     print ''
-    print 'To install PsUtil using pip (as root):'
+    print 'or install PsUtil using pip (as root):'
     print '# pip install psutil'
     print ''
     psutil_available = False
@@ -87,7 +87,6 @@ def __poll_process_info():
             pass
         else:
             procs.append(p)
-
     # return processes sorted by CPU percent usage
     stdpss = sorted(procs, key=lambda p: p.dict['cpu_percent'], reverse=True)
     # result process list include calculated value
@@ -108,7 +107,6 @@ def __poll_process_info():
             p.dict['memory_percent'] = ''
         if p.dict['cpu_percent'] is None:
             p.dict['cpu_percent'] = ''
-
         # create desired process info dict
         result_p = {
             "pid": p.pid,
@@ -142,6 +140,11 @@ def bytes2human(n):
             value = int(float(n) / prefix[s])
             return '%s%s' % (value, s)
     return "%sB" % n
+
+
+def __poll_memeory_usage_percent():
+    mem = psutil.virtual_memory()
+    return mem.percent
 
 
 #..............this is end of collect method..............................
@@ -186,6 +189,12 @@ class Timer(threading.Thread):
 #............... end of timer class ................................
 
 #--------------- start of public functhion -------------------------
+
+
+def memory():
+    if psutil_available is False:
+        return None
+    return __poll_memeory_usage_percent()
 
 
 def processes():

@@ -13,13 +13,28 @@ import json
 import os.path
 import socket
 
-import cherrypy
-
 import showtable
 import collecttask
 
 localDir = os.path.dirname(__file__)
 tutconf = os.path.join(localDir, 'server.conf')
+cherrypy_available = None
+
+try:
+    import cherrypy
+except ImportError:
+    print 'cherrypy module not found. Gleye cannot start.'
+    print ''
+    print 'On Ubuntu 12.04 or higher:'
+    print '$ sudo apt-get install python-cherrypy'
+    print ''
+    print 'or install cherrypy using pip (as root):'
+    print '# pip install cherrypy'
+    print ''
+    cherrypy_available = False
+else:
+    print 'cherrypy  is ready to run...'
+    cherrypy_available = True
 
 
 class CollectData:
@@ -60,6 +75,13 @@ class CollectData:
         return json.dumps(process_list)
     processes.exposed = True
 
+    def memory(self):
+        memused_percent = collecttask.memory()
+        if memused_percent is None:
+            return 0
+        return memused_percent
+    memory.exposed = True
+
 
     #end of CollectData class
 
@@ -82,6 +104,9 @@ def status():
 
 
 def main():
+    if cherrypy_available is False:
+        return
+
     cf = ConfigParser.ConfigParser()
     cf.read(tutconf)
     ip = cf.get("global", "server.socket_host")
@@ -91,6 +116,7 @@ def main():
     available = checkPort(ip, port)
     if available is False:
         return
+
     cherrypy.quickstart(CollectData(), "", tutconf)
 
     print "server exited!"
