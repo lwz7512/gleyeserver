@@ -25,16 +25,19 @@ tutconf = os.path.join(localDir, 'server.conf')
 class CollectData:
 
     def index(self):
+        """ start cpu usage collecting """
         start()
         return "Collect Task Started, <a href='stopCollect'>Click to Stop</a>"
     index.exposed = True
 
     def stopCollect(self):
+        """ stop cpu usage collecting """
         stop()
         return "Stoped!  <a href='../'>Click to Start</a>"
     stopCollect.exposed = True
 
     def latest(self):
+        """ latest cpu usage """
         row = showtable.getLatestRecord()
         if row:
             obj = {'id': row[0], 'kpi': row[1], 'value': row[2],
@@ -45,15 +48,20 @@ class CollectData:
     latest.exposed = True
 
     def config(self):
+        """ cpu num """
         cpu = str(collecttask.cpuNum())
         return str(cpu)
     config.exposed = True
 
+    def processes(self):
+        process_list = collecttask.processes()
+        if process_list is None:
+            return '[]'
+        return json.dumps(process_list)
+    processes.exposed = True
+
+
     #end of CollectData class
-
-
-def hostCfg():
-    return collecttask.cpuNum()
 
 
 def start():

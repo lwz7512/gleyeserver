@@ -10,6 +10,8 @@
 """
 import threading
 import time
+from datetime import timedelta
+
 import dboperate
 
 #global var definition
@@ -75,7 +77,72 @@ def __poll_total_cpu():
 
 
 def __poll_process_info():
-    pass    # TODO, ...
+    procs = []
+    for p in psutil.process_iter():
+        try:
+            p.dict = p.as_dict(['username', 'get_nice', 'get_memory_info',
+                                'get_memory_percent', 'get_cpu_percent',
+                                'get_cpu_times', 'name', 'status'])
+        except psutil.NoSuchProcess:
+            pass
+        else:
+            procs.append(p)
+
+    # return processes sorted by CPU percent usage
+    stdpss = sorted(procs, key=lambda p: p.dict['cpu_percent'], reverse=True)
+    # result process list include calculated value
+    result_procs = []
+    for p in stdpss:
+        # TIME+ column shows process CPU cumulative time and it
+        # is expressed as: "mm:ss.ms"
+        if p.dict['cpu_times'] is not None:
+            ctime = timedelta(seconds=sum(p.dict['cpu_times']))
+            ctime = "%s:%s.%s" % (ctime.seconds // 60 % 60,
+                                  str((ctime.seconds % 60)).zfill(2),
+                                  str(ctime.microseconds)[:2])
+        else:
+            ctime = ''
+        if p.dict['memory_percent'] is not None:
+            p.dict['memory_percent'] = round(p.dict['memory_percent'], 1)
+        else:
+            p.dict['memory_percent'] = ''
+        if p.dict['cpu_percent'] is None:
+            p.dict['cpu_percent'] = ''
+
+        # create desired process info dict
+        result_p = {
+            "pid": p.pid,
+            "user": p.dict['username'][:8],
+            "nice": p.dict['nice'],
+            "virt": bytes2human(getattr(p.dict['memory_info'], 'vms', 0)),
+            "res": bytes2human(getattr(p.dict['memory_info'], 'rss', 0)),
+            "cpupercent": p.dict['cpu_percent'],
+            "mempercent": p.dict['memory_percent'],
+            "timeaccum": ctime,
+            "pname": p.dict['name'] or ''}
+        result_procs.append(result_p)
+
+    # only use first 10 process
+    return result_procs[:10]
+
+
+def bytes2human(n):
+    """
+    >>> bytes2human(10000)
+    '9K'
+    >>> bytes2human(100001221)
+    '95M'
+    """
+    symbols = ('K', 'M', 'G', 'T', 'P', 'E', 'Z', 'Y')
+    prefix = {}
+    for i, s in enumerate(symbols):
+        prefix[s] = 1 << (i + 1) * 10
+    for s in reversed(symbols):
+        if n >= prefix[s]:
+            value = int(float(n) / prefix[s])
+            return '%s%s' % (value, s)
+    return "%sB" % n
+
 
 #..............this is end of collect method..............................
 
@@ -119,6 +186,12 @@ class Timer(threading.Thread):
 #............... end of timer class ................................
 
 #--------------- start of public functhion -------------------------
+
+
+def processes():
+    if psutil_available is False:
+        return None
+    return __poll_process_info()
 
 
 def cpuNum():
