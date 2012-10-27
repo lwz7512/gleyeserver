@@ -144,7 +144,7 @@ def bytes2human(n):
 
 def __poll_memeory_usage_percent():
     mem = psutil.virtual_memory()
-    return mem.percent
+    return str(mem.percent)
 
 
 #..............this is end of collect method..............................

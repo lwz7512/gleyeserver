@@ -78,7 +78,7 @@ class CollectData:
     def memory(self):
         memused_percent = collecttask.memory()
         if memused_percent is None:
-            return 0
+            return '0'
         return memused_percent
     memory.exposed = True
 
