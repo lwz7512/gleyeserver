@@ -112,9 +112,10 @@ def main():
     ip = cf.get("global", "server.socket_host")
     port = cf.getint("global", "server.socket_port")
     ip = ip[1:len(ip) - 1]
-    print "server starting at: ", ip + ":" + str(port)
+    print "start server at: ", ip + ":" + str(port)
     available = checkPort(ip, port)
     if available is False:
+        print "staring server: ", ip + ":" + str(port) + " failed!"
         return
 
     cherrypy.quickstart(CollectData(), "", tutconf)
@@ -123,6 +124,7 @@ def main():
 
 
 def checkPort(ip, port):
+    # must use: socket.SOCK_STREAM
     skt = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     try:
         skt.bind((ip, port))
@@ -130,7 +132,15 @@ def checkPort(ip, port):
         return True
     except Exception:
         print str(port) + " has already used!"
+        print "local ip:", checkLocalIpAddress()
         return False
+
+
+def checkLocalIpAddress():
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    s.connect(('google.com', 0))
+    ip = s.getsockname()[0]
+    return ip
 
 # Main
 #=====

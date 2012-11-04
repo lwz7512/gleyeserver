@@ -41,6 +41,46 @@ else:
     #print 'cpu num: ', cpu_num
 #......................... end of test ...................
 
+#--------------- start of Timer class -------------------------
+
+
+class Timer(threading.Thread):
+
+    def __init__(self, fn, args=(), sleep=0, lastDo=True):
+        threading.Thread.__init__(self)
+        self.fn = fn
+        self.args = args
+        self.sleep = sleep
+        self.lastDo = lastDo
+        self.setDaemon(True)
+
+        self.isPlay = True
+        self.fnPlay = False
+
+    def __do(self):
+        self.fnPlay = True
+        apply(self.fn, self.args)
+        self.fnPlay = False
+
+    def run(self):
+        while self.isPlay:
+            self.__do()
+            time.sleep(self.sleep)
+
+    def stop(self):
+        #stop the loop
+        self.isPlay = False
+        while True:
+            if not self.fnPlay:
+                break
+            time.sleep(0.01)
+        #if lastDo,do it again
+        if self.lastDo:
+            self.__do()
+        #print "timer stoped!"
+#............... end of timer class ................................
+
+
 #--------------- start of private collect functhion -------------
 
 
@@ -48,24 +88,33 @@ def __collect():
     if psutil_available is False:
         print "psutil is inavailable, could not collect data..."
         return
-    __poll_per_cpu()
+    __poll_avg_cpu()
+    #__poll_per_cpu()
 
 
-def __poll_per_cpu():
-    # non-blocking (percentage since last call)
-    per_cpu_usage = psutil.cpu_percent(0, True)
-    cpu_usage_all = []
-    for i in per_cpu_usage:
-        cpu_usage_all.append(str(i) + ',')
-    cpu_striped = ''.join(cpu_usage_all)
-    cpu_striped = cpu_striped[:len(cpu_striped) - 1]
-    #print 'cpu usage: ', cpu_striped
+def __poll_avg_cpu():
+    cpu_usage = psutil.cpu_percent()
     #save to database...
     query = dboperate.SqliteQuery(dbname)
     query = query.table(tbname)
     #create_milisec = str(math.trunc(time.time() * 1000))
     query.insert(('kpi', 'value', 'target', 'create_time'),
-                 ('cpu_usage', cpu_striped, 'local', time.time()))
+                 ('cpu_usage', str(cpu_usage), 'local', time.time()))
+    query.clean()
+
+
+def __poll_per_cpu():
+    # non-blocking (percentage since last call)
+    per_cpu_usage = psutil.cpu_percent(0, True)
+    for i in range(len(per_cpu_usage)):
+        per_cpu_usage[i] = str(per_cpu_usage[i])
+    cpu_comma = ','.join(per_cpu_usage)
+    #save to database...
+    query = dboperate.SqliteQuery(dbname)
+    query = query.table(tbname)
+    #create_milisec = str(math.trunc(time.time() * 1000))
+    query.insert(('kpi', 'value', 'target', 'create_time'),
+                 ('cpu_usage', cpu_comma, 'local', time.time()))
     query.clean()
 
 
@@ -149,44 +198,6 @@ def __poll_memeory_usage_percent():
 
 #..............this is end of collect method..............................
 
-#--------------- start of Timer class -------------------------
-
-
-class Timer(threading.Thread):
-
-    def __init__(self, fn, args=(), sleep=0, lastDo=True):
-        threading.Thread.__init__(self)
-        self.fn = fn
-        self.args = args
-        self.sleep = sleep
-        self.lastDo = lastDo
-        self.setDaemon(True)
-
-        self.isPlay = True
-        self.fnPlay = False
-
-    def __do(self):
-        self.fnPlay = True
-        apply(self.fn, self.args)
-        self.fnPlay = False
-
-    def run(self):
-        while self.isPlay:
-            self.__do()
-            time.sleep(self.sleep)
-
-    def stop(self):
-        #stop the loop
-        self.isPlay = False
-        while True:
-            if not self.fnPlay:
-                break
-            time.sleep(0.01)
-        #if lastDo,do it again
-        if self.lastDo:
-            self.__do()
-        #print "timer stoped!"
-#............... end of timer class ................................
 
 #--------------- start of public functhion -------------------------
 
